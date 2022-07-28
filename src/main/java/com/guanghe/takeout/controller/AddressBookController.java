@@ -113,4 +113,11 @@ public class AddressBookController {
 
         return R.success("修改地址成功");
     }
+
+    @DeleteMapping
+    public R<String> delete(@RequestParam Long ids){
+        log.info("删除地址,id为：{}",ids);
+        addressBookService.removeById(ids);
+        return R.success("删除地址成功");
+    }
 }
