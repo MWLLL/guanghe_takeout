@@ -1,6 +1,7 @@
 package com.guanghe.takeout.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.guanghe.takeout.common.R;
 import com.guanghe.takeout.dto.DishDto;
 import com.guanghe.takeout.entity.Dish;
 
@@ -15,7 +16,7 @@ public interface DishService extends IService<Dish> {
     //更新菜品信息同时更新口味信息
     public void updateWithFlavor(DishDto dishDto);
     //删除菜品信息时同时删除对应口味信息
-    public void removeWithFlavor(List<Long> ids);
+    public Integer removeWithFlavor(List<Long> ids);
     //更新菜品状态
     public void updateStatus(Integer status, List<Long> ids);
 }

@@ -126,9 +126,11 @@ public class DishController {
     public R<String> delete(@RequestParam List<Long> ids){
 
         log.info("删除菜品，id为：{}",ids);
-        dishService.removeWithFlavor(ids);
-
-        return R.success("删除菜品成功");
+        int flag = dishService.removeWithFlavor(ids);
+        if (flag==1){
+            return R.success("删除菜品成功");
+        }
+        return R.error("启售中的菜品不能删除");
     }
 
     /**

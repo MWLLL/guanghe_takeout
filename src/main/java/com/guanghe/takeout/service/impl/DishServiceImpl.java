@@ -2,6 +2,7 @@ package com.guanghe.takeout.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.guanghe.takeout.common.R;
 import com.guanghe.takeout.dto.DishDto;
 import com.guanghe.takeout.entity.Dish;
 import com.guanghe.takeout.entity.DishFlavor;
@@ -111,12 +112,15 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
      */
     @Override
     @Transactional
-    public void removeWithFlavor(List<Long> ids) {
+    public Integer removeWithFlavor(List<Long> ids) {
 
         //删除对应菜品图片
         for (int i=0 ; i<ids.size(); i++){
             Long id = ids.get(i);
             Dish dish = this.getById(id);//查询菜品基本信息
+            if (dish.getStatus()==1){//判断当前菜品是否是启售状态，如果是启售则不能删除
+                return 0;
+            }
             File file = new File(basePath+dish.getImage());
             if (file.exists()){
                 file.delete();
@@ -131,6 +135,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             columnMap.put("dish_id",id);
             dishFlavorService.removeByMap(columnMap);
         }
+        return 1;
     }
 
     /**
