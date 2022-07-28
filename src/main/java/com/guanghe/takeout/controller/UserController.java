@@ -88,6 +88,6 @@ public class UserController {
             return R.success(user);
         }
 
-        return R.error("登录失败");
+        return R.error("验证码错误");
     }
 }
