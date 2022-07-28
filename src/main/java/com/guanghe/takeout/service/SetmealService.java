@@ -6,9 +6,13 @@ import com.guanghe.takeout.entity.Setmeal;
 import com.guanghe.takeout.mapper.SetmealMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface SetmealService extends IService<Setmeal> {
 
     //保存套餐和关联菜品信息
     public void saveWithDish(SetmealDto setmealDto);
+    //删除套餐和关联的菜品信息
+    public void removeWithDish(List<Long> ids);
 }
