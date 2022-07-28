@@ -6,6 +6,7 @@ import com.guanghe.takeout.common.R;
 import com.guanghe.takeout.dto.SetmealDto;
 import com.guanghe.takeout.entity.Category;
 import com.guanghe.takeout.entity.Setmeal;
+import com.guanghe.takeout.entity.SetmealDish;
 import com.guanghe.takeout.service.CategoryService;
 import com.guanghe.takeout.service.SetmealDishService;
 import com.guanghe.takeout.service.SetmealService;
@@ -103,5 +104,14 @@ public class SetmealController {
         log.info("删除套餐：ids = {}",ids);
         setmealService.removeWithDish(ids);
         return R.success("套餐删除成功");
+    }
+
+    /**
+     * 根据id查询套餐信息和对应菜品信息用于表单回显数据
+     */
+    @GetMapping("/{id}")
+    public R<SetmealDto> get(@PathVariable Long id){
+        SetmealDto setmealDto = setmealService.getByIdWithDish(id);
+        return R.success(setmealDto);
     }
 }

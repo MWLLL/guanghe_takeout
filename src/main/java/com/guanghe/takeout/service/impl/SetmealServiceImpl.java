@@ -4,12 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.guanghe.takeout.common.CustomException;
+import com.guanghe.takeout.dto.DishDto;
 import com.guanghe.takeout.dto.SetmealDto;
+import com.guanghe.takeout.entity.Dish;
+import com.guanghe.takeout.entity.DishFlavor;
 import com.guanghe.takeout.entity.Setmeal;
 import com.guanghe.takeout.entity.SetmealDish;
 import com.guanghe.takeout.mapper.SetmealMapper;
 import com.guanghe.takeout.service.SetmealDishService;
 import com.guanghe.takeout.service.SetmealService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +71,30 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         LambdaQueryWrapper<SetmealDish> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.in(SetmealDish::getSetmealId,ids);
         setmealDishService.remove(lambdaQueryWrapper);
+    }
+
+    /**
+     * 根据id查询套餐和关联菜品信息
+     * @param id
+     * @return
+     */
+    @Override
+    public SetmealDto getByIdWithDish(Long id) {
+        //查询套餐基本信息
+        Setmeal setmeal = this.getById(id);
+
+        //拷贝
+        SetmealDto setmealDto = new SetmealDto();
+        BeanUtils.copyProperties(setmeal,setmealDto);
+
+        //查询套餐对应菜品信息
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId,setmeal.getId());
+        List<SetmealDish> dishes = setmealDishService.list(queryWrapper);
+
+        setmealDto.setSetmealDishes(dishes);
+
+        return setmealDto;
     }
 
 }
