@@ -125,4 +125,19 @@ public class SetmealController {
         setmealService.updateByIdWithDish(setmealDto);
         return R.success("更新套餐成功");
     }
+
+    /**
+     * 单个或批量修改菜品状态
+     * @param status
+     * @param ids
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    public R<String> updateStatus(@PathVariable Integer status,@RequestParam List<Long> ids){
+
+        log.info("修改套餐售卖状态...");
+        setmealService.updateStatus(status,ids);
+
+        return R.success("更新套餐状态成功");
+    }
 }

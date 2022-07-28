@@ -1,6 +1,7 @@
 package com.guanghe.takeout.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.guanghe.takeout.common.CustomException;
@@ -122,6 +123,20 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         }).collect(Collectors.toList());
 
         setmealDishService.saveBatch(dishes);
+    }
+
+    /**
+     * 单个或批量修改套餐状态
+     * @param status
+     * @param ids
+     */
+    @Override
+    public void updateStatus(Integer status, List<Long> ids) {
+        LambdaUpdateWrapper<Setmeal> queryWrapper = new LambdaUpdateWrapper<>();
+        queryWrapper.in(Setmeal::getId,ids).set(Setmeal::getStatus,status);
+
+        this.update(queryWrapper);
+
     }
 
 }
