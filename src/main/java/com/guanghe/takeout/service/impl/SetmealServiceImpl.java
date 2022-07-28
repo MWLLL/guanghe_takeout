@@ -97,4 +97,31 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         return setmealDto;
     }
 
+    /**
+     * 根据id修改套餐和对应菜品信息
+     * @param setmealDto
+     */
+    @Override
+    @Transactional
+    public void updateByIdWithDish(SetmealDto setmealDto) {
+
+        //更新setmeal表基本信息
+        this.updateById(setmealDto);
+
+        //清理当前套餐对应菜品信息setmeal_dish表的delete操作
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId,setmealDto.getId());
+        setmealDishService.remove(queryWrapper);
+
+        //添加当前提交过来的菜品数据setmeal_dish表的insert操作
+        List<SetmealDish> dishes = setmealDto.getSetmealDishes();
+
+        dishes = dishes.stream().map((item)->{
+            item.setSetmealId(setmealDto.getId());
+            return item;
+        }).collect(Collectors.toList());
+
+        setmealDishService.saveBatch(dishes);
+    }
+
 }
