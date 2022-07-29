@@ -56,7 +56,7 @@ public class OrderController {
             queryWrapper.eq(Orders::getNumber,number);
         }
         if (beginTime != null && endTime != null){
-            queryWrapper.ge(Orders::getOrderTime,beginTime);
+            queryWrapper.ge(Orders::getOrderTime,beginTime);// WHERE (order_time >= ? AND order_time <= ?)
             queryWrapper.le(Orders::getOrderTime,endTime);
             queryWrapper.orderByDesc(Orders::getOrderTime);
         }
@@ -64,6 +64,18 @@ public class OrderController {
         ordersService.page(pageInfo,queryWrapper);
 
         return R.success(pageInfo);
+    }
+
+    /**
+     * 修改订单状态
+     * @param orders
+     * @return
+     */
+    @PutMapping
+    public R<String> updateStatus(@RequestBody Orders orders){
+        log.info("修改订单状态");//订单状态 1待付款，2待派送，3已派送，4已完成，5已取消
+        ordersService.updateById(orders);
+        return R.success("更新订单状态成功");
     }
 
 }
