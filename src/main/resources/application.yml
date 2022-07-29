@@ -24,8 +24,8 @@ guanghe:
 
 #腾讯云短信服务
 config:
-  secretId: AKID
-  secretKey: h9MK
+  secretId: AKIDDF
+  secretKey: h9MKCE
   smsSdkAppId: 1400713378
   templateId: 1492011
   signName: 广河程序员
