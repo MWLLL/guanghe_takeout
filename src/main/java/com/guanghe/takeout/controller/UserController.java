@@ -2,6 +2,7 @@ package com.guanghe.takeout.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.guanghe.takeout.common.R;
+import com.guanghe.takeout.config.SmsConfig;
 import com.guanghe.takeout.entity.User;
 import com.guanghe.takeout.service.UserService;
 import com.guanghe.takeout.utils.SMSUtils;
@@ -26,6 +27,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    SmsConfig smsConfig;
+
     /**
      * 发送手机短信验证码
      * @param user
@@ -41,8 +45,8 @@ public class UserController {
             String code = ValidateCodeUtils.generateValidateCode(4).toString();
             log.info("code = {}",code);
 
-            //调用阿里云短信服务API完成发送短信服务
-            //SMSUtils.sendMessage("签名","",phone,code);
+            //调用腾讯云短信服务API完成发送短信服务
+            SMSUtils.sendMessage(smsConfig,phone,code);
 
             //需要将生成的验证码保存到Session中
             session.setAttribute("phone",code);
