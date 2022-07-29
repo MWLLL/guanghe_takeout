@@ -3,15 +3,22 @@ package com.guanghe.takeout.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guanghe.takeout.common.R;
+import com.guanghe.takeout.dto.DishDto;
+import com.guanghe.takeout.dto.OrdersDto;
+import com.guanghe.takeout.entity.Category;
+import com.guanghe.takeout.entity.Dish;
 import com.guanghe.takeout.entity.OrderDetail;
 import com.guanghe.takeout.entity.Orders;
 import com.guanghe.takeout.service.OrderDetailService;
 import com.guanghe.takeout.service.OrdersService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 订单管理
@@ -78,4 +85,41 @@ public class OrderController {
         return R.success("更新订单状态成功");
     }
 
+    /**
+     * 移动端订单列表页
+     * @param page
+     * @param pageInfo
+     * @return
+     */
+    @GetMapping("/userPage")
+    public R<Page> userPage(Integer page, Integer pageSize){
+        Page<Orders> pageInfo = new Page<>(page,pageSize);
+        Page<OrdersDto> ordersDto = new Page<>();
+
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByDesc(Orders::getOrderTime);
+
+        ordersService.page(pageInfo,queryWrapper);//获得orders数据
+
+        //对象拷贝
+        BeanUtils.copyProperties(pageInfo,ordersDto,"records");//忽略records数组
+
+        List<Orders> records = pageInfo.getRecords();
+        List<OrdersDto> list = records.stream().map((item->{
+            OrdersDto dto = new OrdersDto();
+            BeanUtils.copyProperties(item,dto);//拷贝Orders数据
+
+            Long orderId = item.getId();//订单id
+            LambdaQueryWrapper<OrderDetail> orderDetailLambdaQueryWrapper = new LambdaQueryWrapper<>();
+            orderDetailLambdaQueryWrapper.eq(OrderDetail::getOrderId,orderId);
+            List<OrderDetail> orderDetail = orderDetailService.list(orderDetailLambdaQueryWrapper);
+            dto.setOrderDetails(orderDetail);
+            return dto;
+        })).collect(Collectors.toList());
+
+        ordersDto.setRecords(list);
+
+        return R.success(ordersDto);
+
+    }
 }
