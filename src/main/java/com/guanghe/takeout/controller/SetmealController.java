@@ -140,4 +140,18 @@ public class SetmealController {
 
         return R.success("更新套餐状态成功");
     }
+
+    /**
+     * 获取套餐列表信息
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Setmeal>> list(Setmeal setmeal){
+
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Setmeal::getCategoryId,setmeal.getCategoryId());
+        queryWrapper.eq(Setmeal::getStatus,setmeal.getStatus());
+        List<Setmeal> setmeals = setmealService.list(queryWrapper);
+        return R.success(setmeals);
+    }
 }
