@@ -43,7 +43,7 @@ public class UserController {
         if (!StringUtils.isEmpty(phone)){
             //生成随机的4为验证码
             String code = ValidateCodeUtils.generateValidateCode(4).toString();
-            log.info("code = {}",code);
+            log.info("验证码为：{}",code);
 
             //调用腾讯云短信服务API完成发送短信服务
             //int msg = SMSUtils.sendMessage(smsConfig,phone,code);
