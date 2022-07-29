@@ -3,11 +3,14 @@ package com.guanghe.takeout.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.guanghe.takeout.common.R;
+import com.guanghe.takeout.dto.SetmealDishDto;
 import com.guanghe.takeout.dto.SetmealDto;
 import com.guanghe.takeout.entity.Category;
+import com.guanghe.takeout.entity.Dish;
 import com.guanghe.takeout.entity.Setmeal;
 import com.guanghe.takeout.entity.SetmealDish;
 import com.guanghe.takeout.service.CategoryService;
+import com.guanghe.takeout.service.DishService;
 import com.guanghe.takeout.service.SetmealDishService;
 import com.guanghe.takeout.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +38,9 @@ public class SetmealController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishService dishService;
 
     /**
      * 新增套餐
@@ -153,5 +160,36 @@ public class SetmealController {
         queryWrapper.eq(Setmeal::getStatus,setmeal.getStatus());
         List<Setmeal> setmeals = setmealService.list(queryWrapper);
         return R.success(setmeals);
+    }
+
+    /**
+     * 移动端套餐详情页
+     * @param id
+     * @return
+     */
+    @GetMapping("/dish/{id}")
+    public R<List<SetmealDishDto>> getDish(@PathVariable Long id){
+        LambdaQueryWrapper<SetmealDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SetmealDish::getSetmealId,id);
+        List<SetmealDish> dishes = setmealDishService.list(queryWrapper);
+
+        List<SetmealDishDto> dishDtoList = dishes.stream().map((item->{
+            SetmealDishDto dishDto = new SetmealDishDto();
+            //拷贝数据
+            BeanUtils.copyProperties(item,dishDto);
+            //获取菜品id
+            Long dishId = item.getDishId();
+            //根据菜品id查询菜品信息
+            Dish dish = dishService.getById(dishId);
+            if (dish != null){
+                String dishImgName = dish.getImage();//照片名称
+                dishDto.setImage(dishImgName);//设置分类名称
+            }
+            return dishDto;
+        })).collect(Collectors.toList());
+
+
+
+        return R.success(dishDtoList);
     }
 }
