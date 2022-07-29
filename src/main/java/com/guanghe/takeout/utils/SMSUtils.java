@@ -1,6 +1,7 @@
 package com.guanghe.takeout.utils;
 
 
+import com.guanghe.takeout.common.CustomException;
 import com.guanghe.takeout.config.SmsConfig;
 import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.profile.ClientProfile;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * 短信发送工具类
  */
+@Slf4j
 public class SMSUtils {
 
 	/**
@@ -24,7 +26,7 @@ public class SMSUtils {
 	 * @param phoneNumbers 手机号
 	 * @param param 参数
 	 */
-	public static void sendMessage(SmsConfig smsConfig,String phoneNumbers,String param){
+	public static int sendMessage(SmsConfig smsConfig,String phoneNumbers,String param){
 		try{
 			// 实例化一个认证对象，入参需要传入腾讯云账户secretId，secretKey,此处还需注意密钥对的保密
 			// 密钥可前往https://console.cloud.tencent.com/cam/capi网站进行获取
@@ -52,10 +54,19 @@ public class SMSUtils {
 			// 返回的resp是一个SendSmsResponse的实例，与请求对象对应
 			SendSmsResponse resp = client.SendSms(req);
 			// 输出json格式的字符串回包
-			System.out.println(SendSmsResponse.toJsonString(resp));
+			String json = SendSmsResponse.toJsonString(resp);
+			if (json.contains("\"Code\":\"Ok\"")) {
+				log.info(json);
+				return 1;
+			} else {
+				log.info(json);
+				return 0;
+			}
 		} catch (TencentCloudSDKException e) {
 			System.out.println(e.toString());
 		}
+		return 0;
 	}
+
 
 }

@@ -46,11 +46,15 @@ public class UserController {
             log.info("code = {}",code);
 
             //调用腾讯云短信服务API完成发送短信服务
-            //SMSUtils.sendMessage(smsConfig,phone,code);
-
-            //需要将生成的验证码保存到Session中
-            session.setAttribute("phone",code);
-            return R.success("手机验证码短信发送成功");
+            //int msg = SMSUtils.sendMessage(smsConfig,phone,code);
+            //if (msg==1){
+            if (1==1){
+                //需要将生成的验证码保存到Session中
+                session.setAttribute("phone",code);
+                return R.success("手机验证码短信发送成功");
+            }else {
+                return R.error("验证码发送频率限制");
+            }
 
         }
 
