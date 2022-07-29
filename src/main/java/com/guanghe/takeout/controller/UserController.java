@@ -46,7 +46,7 @@ public class UserController {
             log.info("code = {}",code);
 
             //调用腾讯云短信服务API完成发送短信服务
-            SMSUtils.sendMessage(smsConfig,phone,code);
+            //SMSUtils.sendMessage(smsConfig,phone,code);
 
             //需要将生成的验证码保存到Session中
             session.setAttribute("phone",code);
@@ -93,5 +93,16 @@ public class UserController {
         }
 
         return R.error("验证码错误");
+    }
+
+    /**
+     * 退出登录
+     * @return
+     */
+    @PostMapping("/loginout")
+    public R<String> logout(HttpServletRequest request){
+        //清理session中保存的员工id
+        request.getSession().removeAttribute("user");
+        return R.success("已退出登录");
     }
 }
