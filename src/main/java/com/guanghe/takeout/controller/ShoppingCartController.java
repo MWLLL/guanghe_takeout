@@ -1,16 +1,17 @@
 package com.guanghe.takeout.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.guanghe.takeout.common.BaseContext;
 import com.guanghe.takeout.common.R;
 import com.guanghe.takeout.entity.ShoppingCart;
 import com.guanghe.takeout.service.ShoppingCartService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 购物车
@@ -57,10 +58,81 @@ public class ShoppingCartController {
         }else {
             //如果不存在则添加到购物车，数量默认是1
             shoppingCart.setNumber(1);
+            shoppingCart.setCreateTime(LocalDateTime.now());
             shoppingCartService.save(shoppingCart);
             shoppingCartOne = shoppingCart;
         }
 
         return R.success(shoppingCartOne);
+    }
+
+    /**
+     * 查看购物车
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<ShoppingCart>> list(){
+        log.info("查看购物车...");
+
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+        queryWrapper.orderByAsc(ShoppingCart::getCreateTime);
+
+        List<ShoppingCart> list = shoppingCartService.list(queryWrapper);
+
+        return R.success(list);
+    }
+
+    /**
+     * 清空购物车
+     * @return
+     */
+    @DeleteMapping("/clean")
+    public R<String> clean(){
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+
+        shoppingCartService.remove(queryWrapper);
+
+        return R.success("清空购物车成功");
+    }
+
+    /**
+     * 购物车-1
+     * @param shoppingCart
+     * @return
+     */
+    @PostMapping("/sub")
+    public R<String> sub(@RequestBody ShoppingCart shoppingCart) {
+        log.info("购物车-1");
+        Long userId = BaseContext.getCurrentId();
+
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ShoppingCart::getUserId, userId);
+
+        if (shoppingCart.getDishId() != null) {
+            //菜品-1
+            queryWrapper.eq(ShoppingCart::getDishId, shoppingCart.getDishId());
+            ShoppingCart cart = shoppingCartService.getOne(queryWrapper);
+            if (cart.getNumber() > 1) {
+                cart.setNumber(cart.getNumber() - 1);
+                shoppingCartService.updateById(cart);
+            } else {
+                shoppingCartService.removeById(cart.getId());
+            }
+
+            return R.success("操作成功");
+        } else {
+            //套餐-1
+            queryWrapper.eq(ShoppingCart::getSetmealId, shoppingCart.getSetmealId());
+            ShoppingCart cart = shoppingCartService.getOne(queryWrapper);
+            if (cart.getNumber() > 1) {
+                cart.setNumber(cart.getNumber() - 1);
+                shoppingCartService.updateById(cart);
+            } else {
+                shoppingCartService.removeById(cart.getId());
+            }
+            return R.success("操作成功");
+        }
     }
 }
