@@ -2,6 +2,7 @@ package com.guanghe.takeout.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.guanghe.takeout.common.BaseContext;
 import com.guanghe.takeout.common.R;
 import com.guanghe.takeout.dto.DishDto;
 import com.guanghe.takeout.dto.OrdersDto;
@@ -98,6 +99,7 @@ public class OrderController {
 
         LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.orderByDesc(Orders::getOrderTime);
+        queryWrapper.eq(Orders::getUserId, BaseContext.getCurrentId());
 
         ordersService.page(pageInfo,queryWrapper);//获得orders数据
 
