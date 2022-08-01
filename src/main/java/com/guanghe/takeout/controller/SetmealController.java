@@ -16,6 +16,9 @@ import com.guanghe.takeout.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,6 +54,7 @@ public class SetmealController {
      * 新增套餐
      * @return
      */
+    @CacheEvict(value = "setmealCache", allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto){
         log.info("新增套餐...");
@@ -134,13 +138,11 @@ public class SetmealController {
      * 套餐更新
      * @return
      */
+    @CacheEvict(value = "setmealCache", key = "#setmealDto.categoryId + '_' + #setmealDto.status")//清理指定key的缓存
     @PutMapping
     public R<String> update(@RequestBody SetmealDto setmealDto){
         log.info("修改套餐...");
         setmealService.updateByIdWithDish(setmealDto);
-        //清理Redis缓存
-        String key = "setmeal_"+setmealDto.getCategoryId()+"_1";
-        redisTemplate.delete(key);
         return R.success("更新套餐成功");
     }
 
@@ -150,6 +152,7 @@ public class SetmealController {
      * @param ids
      * @return
      */
+    @CacheEvict(value = "setmealCache", allEntries = true)//allEntries删除该分类下所有数据
     @PostMapping("/status/{status}")
     public R<String> updateStatus(@PathVariable Integer status,@RequestParam List<Long> ids){
 
@@ -166,24 +169,15 @@ public class SetmealController {
      * 移动端获取套餐列表信息
      * @return
      */
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId + '_' + #setmeal.status", unless = "#result == null")
     @GetMapping("/list")
     public R<List<Setmeal>> list(Setmeal setmeal){
 
-        List<Setmeal> setmeals = null;
-        String key = "setmeal_"+setmeal.getCategoryId()+"_"+setmeal.getStatus();
-        //判断Redis缓存中是否存在数据
-        setmeals = (List<Setmeal>)redisTemplate.opsForValue().get(key);
-        if (setmeals != null){//如果存在，直接返回，无需查询数据库
-            return R.success(setmeals);
-        }
-        //如果不存在，需要查询数据库，将查到的数据缓存到Redis中
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Setmeal::getCategoryId,setmeal.getCategoryId());
         queryWrapper.eq(Setmeal::getStatus,setmeal.getStatus());
-        setmeals = setmealService.list(queryWrapper);
-
-        //数据缓存到Redis中
-        redisTemplate.opsForValue().set(key,setmeals,60l, TimeUnit.MINUTES);
+        queryWrapper.orderByDesc(Setmeal::getUpdateTime);
+        List<Setmeal> setmeals = setmealService.list(queryWrapper);
 
         return R.success(setmeals);
     }

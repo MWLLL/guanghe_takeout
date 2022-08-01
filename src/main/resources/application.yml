@@ -21,6 +21,9 @@ spring:
         max-wait: 1ms #当池耗尽时，连接分配在引发异常之前应该阻塞的最长时间。使用负值无限期阻止
         max-idle: 4 #池中“空闲”连接的最大数量
         min-idle: 0 #目标是在池中维护的最小空闲连接数
+  cache:
+    redis:
+      time-to-live: 1800000 #设置缓存过期时间，可选 单位ms
 mybatis-plus:
   configuration:
     #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
