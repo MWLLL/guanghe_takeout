@@ -16,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -49,6 +46,11 @@ public class DishController {
         log.info("新增菜品...");
 
         dishService.saveWithFlavor(dishDto);
+
+        //清理菜品的Redis缓存
+        //Set keys = redisTemplate.keys("dish_*");//清理所有
+        String key = "dish_"+dishDto.getCategoryId()+"_1";//清理指定分类菜品缓存
+        redisTemplate.delete(key);
 
         return R.success("新增菜品成功");
     }
@@ -119,6 +121,11 @@ public class DishController {
 
         dishService.updateWithFlavor(dishDto);
 
+        //清理菜品的Redis缓存
+        //Set keys = redisTemplate.keys("dish_*");//清理所有
+        String key = "dish_"+dishDto.getCategoryId()+"_1";
+        redisTemplate.delete(key);
+
         return R.success("修改菜品成功");
     }
 
@@ -149,6 +156,9 @@ public class DishController {
 
         log.info("修改菜品状态...");
         dishService.updateStatus(status,ids);
+        //清理菜品的Redis缓存
+        Set keys = redisTemplate.keys("dish_*");//清理所有
+        redisTemplate.delete(keys);
 
         return R.success("更新菜品状态成功");
     }
