@@ -1,0 +1,46 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: guanghe_take_out
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/guanghewm?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: password
+  #Redis相关配置
+  redis:
+    host: localhost #Redis 服务器主机
+    port: 6379 #Redis 服务器端口
+    #password: 123456
+    database: 0 #默认操作0号数据库
+    jedis:
+      pool:
+        max-active: 8 #池在给定时间可以分配的最大连接数。使用负值表示无限制
+        max-wait: 1ms #当池耗尽时，连接分配在引发异常之前应该阻塞的最长时间。使用负值无限期阻止
+        max-idle: 4 #池中“空闲”连接的最大数量
+        min-idle: 0 #目标是在池中维护的最小空闲连接数
+  cache:
+    redis:
+      time-to-live: 1800000 #设置缓存过期时间，可选 单位ms
+mybatis-plus:
+  configuration:
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+
+#文件上传路径
+guanghe:
+  path: D:/images/
+
+#腾讯云短信服务
+config:
+  secretId: AKIDfCVaS
+  secretKey: h9MK4as
+  smsSdkAppId: 1400713378
+  templateId: 1492011
+  signName: 广河程序员
