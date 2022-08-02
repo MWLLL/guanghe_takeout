@@ -51,9 +51,9 @@ public class UserController {
             log.info("验证码为：{}",code);
 
             //调用腾讯云短信服务API完成发送短信服务
-            //int msg = SMSUtils.sendMessage(smsConfig,phone,code);
-            //if (msg==1){
-            if (1==1){
+            int msg = SMSUtils.sendMessage(smsConfig,phone,code);
+            if (msg==1){
+            //if (1==1){
                 //第一种：需要将生成的验证码保存到Session中
                 //session.setAttribute("phone",code);
 
